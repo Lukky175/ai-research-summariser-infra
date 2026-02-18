@@ -27,3 +27,8 @@ variable "vpc_id" {
 variable "subnet_id" {
   type = string
 }
+
+variable "ssh_allowed_ip" {
+  type        = string
+  description = "Public IP allowed to SSH into EC2 (without /32)"
+}

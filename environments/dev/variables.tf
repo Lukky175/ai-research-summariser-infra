@@ -44,3 +44,8 @@ variable "availability_zone" {
   description = "Availability Zone for the subnet" #"ap-south-1a"
   type = string
 }
+
+variable "ssh_allowed_ip" {
+    type        = string
+    description = "Public IP allowed to SSH into EC2 (without /32)"
+}

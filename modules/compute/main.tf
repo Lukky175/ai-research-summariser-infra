@@ -8,10 +8,6 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-data "http" "my_ip" {
-  url = "https://ifconfig.me/ip"
-}
-
 resource "aws_security_group" "ec2_sg" {
   name = "${var.project_name}-${var.environment}-sg"
   description = "Security group for EC2"
@@ -22,7 +18,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${chomp(data.http.my_ip.response_body)}/32"]
+    cidr_blocks = ["${var.ssh_allowed_ip}/32"]
   }
 
   ingress {
@@ -49,14 +45,9 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-resource "tls_private_key" "generated" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
 resource "aws_key_pair" "generated" {
   key_name   = "${var.project_name}-key"
-  public_key = tls_private_key.generated.public_key_openssh
+  public_key = file("ai-summariser-key.pub")
 }
 
 resource "aws_instance" "app_server" {
@@ -76,7 +67,10 @@ resource "aws_instance" "app_server" {
   user_data = <<-EOF
               #!/bin/bash
               apt update -y
-              apt install -y docker.io curl
+              apt install -y docker.io curl conntrack socat
+
+              systemctl enable docker
+              systemctl start docker
 
               usermod -aG docker ubuntu
 
