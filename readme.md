@@ -1,4 +1,1 @@
-Improved Security in this Patch
-From allowing Http ip's we now only are using 
-ssh_allowed_ip 
-This Improves Security
+Instead of manual SSH we will use aws session manager

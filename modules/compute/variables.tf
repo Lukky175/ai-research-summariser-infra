@@ -10,14 +10,8 @@ variable "owner" {
   type = string
 }
 
-variable "region" {
-  type    = string
-  default = "ap-south-1"
-}
-
 variable "instance_type" {
   type    = string
-  default = "t3.medium"
 }
 
 variable "vpc_id" {
@@ -28,7 +22,3 @@ variable "subnet_id" {
   type = string
 }
 
-variable "ssh_allowed_ip" {
-  type        = string
-  description = "Public IP allowed to SSH into EC2 (without /32)"
-}

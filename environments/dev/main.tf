@@ -21,6 +21,4 @@ module "compute" {
 
   vpc_id    = module.networking.vpc_id
   subnet_id = module.networking.public_subnet_id
-  ssh_allowed_ip = var.ssh_allowed_ip
-
 }

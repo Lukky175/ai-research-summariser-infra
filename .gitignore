@@ -1,2 +1,26 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform plan files
+*.tfplan
+
+# Keys
+keys/*
 *.pem
 ai-summariser-key
+ai-summariser-key.pub
+
+# Env files
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db

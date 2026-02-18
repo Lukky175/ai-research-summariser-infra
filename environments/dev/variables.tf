@@ -21,7 +21,6 @@ variable "owner" {
 variable "instance_type" {
   type        = string
   description = "EC2 instance type"
-  default     = "t3.medium"
 }
 
 variable "cidr_block" {
@@ -43,9 +42,4 @@ variable "subnet_cidr_block" {
 variable "availability_zone" {
   description = "Availability Zone for the subnet" #"ap-south-1a"
   type = string
-}
-
-variable "ssh_allowed_ip" {
-    type        = string
-    description = "Public IP allowed to SSH into EC2 (without /32)"
 }
