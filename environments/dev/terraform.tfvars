@@ -1,0 +1,8 @@
+region        = "ap-south-1"
+project_name  = "adapted"
+environment   = "dev"
+owner         = "Lakshit"
+cidr_block = "10.0.0.0/16"
+instance_tenancy = "default"
+subnet_cidr_block = "10.0.1.0/24"
+availability_zone = "ap-south-1a"
