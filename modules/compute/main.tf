@@ -29,12 +29,29 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+  description = "ArgoCD NodePort"
+  from_port   = 30000
+  to_port     = 32767
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+#   ingress {
+#   description = "K3s API"
+#   from_port   = 6443
+#   to_port     = 6443
+#   protocol    = "tcp"
+#   cidr_blocks = ["YOUR_IP/32"]
+# } # For Future: Replace YOUR_IP with your actual IP address to allow access to K3s API from your machine
+
 }
 resource "aws_iam_role" "ec2_ssm_role" {
   name = "${var.project_name}-${var.environment}-ec2-role"
@@ -75,24 +92,73 @@ resource "aws_instance" "app_server" {
   }
 
   user_data = <<-EOF
-              #!/bin/bash
-              apt update -y
-              apt install -y docker.io curl conntrack socat
+            #!/bin/bash
+            exec > /var/log/user-data-debug.log 2>&1
+            set -x
 
-              systemctl enable docker
-              systemctl start docker
+            echo "User data script started..."
 
-              usermod -aG docker ubuntu
+            apt update -y
+            apt install -y curl
 
-              curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-              install minikube-linux-amd64 /usr/local/bin/minikube
+            echo "Installing k3s..."
 
-              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-              install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--write-kubeconfig-mode 644" sh -
 
-              sudo -u ubuntu minikube start --driver=docker --memory=1400mb --cpus=2
-              EOF
+            echo "Checking if k3s installed..."
 
+            if [ ! -f /usr/local/bin/kubectl ]; then
+              echo "kubectl not found. k3s installation failed."
+              exit 1
+            fi
+
+            echo "Waiting for k3s..."
+            until /usr/local/bin/kubectl get nodes; do
+              sleep 5
+            done
+
+            echo "Installing ArgoCD..."
+            /usr/local/bin/kubectl create namespace argocd || true
+            /usr/local/bin/kubectl apply -n argocd \
+              -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+            echo "Waiting for ArgoCD server..."
+            until /usr/local/bin/kubectl get pods -n argocd | grep argocd-server | grep Running; do
+              sleep 10
+            done
+
+            echo "Patching ArgoCD service..."
+            /usr/local/bin/kubectl patch svc argocd-server -n argocd \
+              -p '{"spec": {"type": "NodePort"}}'
+
+            echo "Creating application namespace..."
+            /usr/local/bin/kubectl create namespace dev-research-app || true
+
+            echo "Creating ArgoCD Application..."
+            cat <<APP | /usr/local/bin/kubectl apply -f -
+            apiVersion: argoproj.io/v1alpha1
+            kind: Application
+            metadata:
+              name: research-app
+              namespace: argocd
+            spec:
+              project: default
+              source:
+                repoURL: https://github.com/Lukky175/research-summarizer-k8s.git
+                targetRevision: HEAD
+                path: .
+              destination:
+                server: https://kubernetes.default.svc
+                namespace: dev-research-app
+              syncPolicy:
+                automated:
+                  prune: true
+                  selfHeal: true
+            APP
+
+            echo "Bootstrap complete."
+            EOF
+              
   tags = {
     Name = "${var.project_name}-${var.environment}-ec2"
 
