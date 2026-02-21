@@ -50,7 +50,7 @@ resource "aws_security_group" "ec2_sg" {
 #   to_port     = 6443
 #   protocol    = "tcp"
 #   cidr_blocks = ["YOUR_IP/32"]
-# } # For Future: Replace YOUR_IP with your actual IP address to allow access to K3s API from your machine
+# } # For Future: I Will Replace YOUR_IP with my actual IP address to allow access to K3s API from my machine
 
 }
 resource "aws_iam_role" "ec2_ssm_role" {
@@ -129,7 +129,7 @@ resource "aws_instance" "app_server" {
 
             echo "Patching ArgoCD service..."
             /usr/local/bin/kubectl patch svc argocd-server -n argocd \
-              -p '{"spec": {"type": "NodePort"}}'
+            -p '{"spec": {"type": "NodePort", "ports":[{"port":80,"targetPort":8080,"nodePort":30080}]}}'
 
             echo "Creating application namespace..."
             /usr/local/bin/kubectl create namespace dev-research-app || true
