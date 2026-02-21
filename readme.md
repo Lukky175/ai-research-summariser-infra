@@ -1,8 +1,6 @@
 Instead of manual SSH we will use aws session manager
 
-Current:- Changed User_Data Script Now Instead Of Range Of Port ArgoCD Is On Port 30080
-
-Now Terraform Gives Public IP of EC2 & Exact ArgoCD URL
+Current:- Fixed Scoping Error For Output Of Argo CD Was Calling Module Inside a Module
 
 
 
