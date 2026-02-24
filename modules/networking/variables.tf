@@ -12,22 +12,22 @@ variable "owner" {
 
 variable "cidr_block" {
   description = "VPC CIDR block"
-  type = string
+  type        = string
 }
 
 variable "instance_tenancy" {
   description = "VPC instance tenancy"
-  type = string
-  default = "default"
+  type        = string
+  default     = "default"
 }
 
 variable "subnet_cidr_block" {
-  description = "Subnet CIDR block"  #"10.0.1.0/24"
-  type = string
+  description = "Subnet CIDR block" #"10.0.1.0/24"
+  type        = string
 }
 
 variable "availability_zone" {
   description = "Availability Zone for the subnet" #"ap-south-1a"
-  type = string
+  type        = string
 }
 

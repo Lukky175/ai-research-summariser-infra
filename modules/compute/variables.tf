@@ -11,7 +11,7 @@ variable "owner" {
 }
 
 variable "instance_type" {
-  type    = string
+  type = string
 }
 
 variable "vpc_id" {

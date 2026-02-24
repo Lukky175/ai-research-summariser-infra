@@ -9,9 +9,9 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_security_group" "ec2_sg" {
-  name = "${var.project_name}-${var.environment}-sg"
+  name        = "${var.project_name}-${var.environment}-sg"
   description = "Security group for EC2"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "HTTP"
@@ -30,12 +30,12 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   ingress {
-  description = "ArgoCD NodePort"
-  from_port   = 30000
-  to_port     = 32767
-  protocol    = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-}
+    description = "ArgoCD NodePort"
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -43,14 +43,14 @@ resource "aws_security_group" "ec2_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
-#   ingress {
-#   description = "K3s API"
-#   from_port   = 6443
-#   to_port     = 6443
-#   protocol    = "tcp"
-#   cidr_blocks = ["YOUR_IP/32"]
-# } # For Future: I Will Replace YOUR_IP with my actual IP address to allow access to K3s API from my machine
+
+  #   ingress {
+  #   description = "K3s API"
+  #   from_port   = 6443
+  #   to_port     = 6443
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["YOUR_IP/32"]
+  # } # For Future: I Will Replace YOUR_IP with my actual IP address to allow access to K3s API from my machine
 
 }
 resource "aws_iam_role" "ec2_ssm_role" {
@@ -78,10 +78,10 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 
 
 resource "aws_instance" "app_server" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
-  subnet_id     = var.subnet_id
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = var.subnet_id
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
 
   associate_public_ip_address = true
@@ -158,7 +158,7 @@ resource "aws_instance" "app_server" {
 
             echo "Bootstrap complete."
             EOF
-              
+
   tags = {
     Name = "${var.project_name}-${var.environment}-ec2"
 

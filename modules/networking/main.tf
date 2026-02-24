@@ -1,20 +1,24 @@
+locals {
+  name_prefix = "${var.project_name}-${var.environment}"
+}
+
 resource "aws_vpc" "main" {
   cidr_block       = var.cidr_block
   instance_tenancy = var.instance_tenancy
 
   tags = {
-  Name = "${local.name_prefix}-vpc"
+    Name = "${local.name_prefix}-vpc"
   }
 }
 
 resource "aws_subnet" "main" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.subnet_cidr_block
-  availability_zone = var.availability_zone
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.subnet_cidr_block
+  availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
 
   tags = {
-  Name = "${local.name_prefix}-subnet"
+    Name = "${local.name_prefix}-subnet"
   }
 }
 
@@ -22,7 +26,7 @@ resource "aws_internet_gateway" "igw01" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-  Name = "${local.name_prefix}-igw"
+    Name = "${local.name_prefix}-igw"
   }
 }
 
@@ -35,7 +39,7 @@ resource "aws_route_table" "rt01" {
   }
 
   tags = {
-  Name = "${local.name_prefix}-route-table"
+    Name = "${local.name_prefix}-route-table"
   }
 }
 

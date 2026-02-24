@@ -2,7 +2,7 @@ Instead of manual SSH we will use aws session manager
 
 Current:- Added Automated Pipeline For This Repo.
 
-
+terraform fmt -check (Checks Format)
 
 logs /var/log/cloud-init-output.log (In EC-2)
 
