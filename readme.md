@@ -1,6 +1,6 @@
 Instead of manual SSH we will use aws session manager
 
-Current:- Added Automated Pipeline For This Repo.
+Current:- Added AWS Login Step In Pipeline
 
 terraform fmt -check (Checks Format)
 
