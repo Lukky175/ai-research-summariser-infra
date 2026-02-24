@@ -4,6 +4,8 @@ Current:- Added Automated Pipeline For This Repo.
 
 terraform fmt -check (Checks Format)
 
+pipeline is enforcing terraform fmt -check -recursive
+
 logs /var/log/cloud-init-output.log (In EC-2)
 
 $ sudo cat /var/log/user-data-debug.log to see logs
@@ -25,3 +27,5 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
   dev branch = dev changes/ dev pipeline runs
   stage step (Will plan something)
   main branch p merge = will run pipeline for prod.
+
+  Add remote backend(Amazon s3)
