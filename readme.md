@@ -1,6 +1,6 @@
 Instead of manual SSH we will use aws session manager
 
-Current:- Fixed Scoping Error For Output Of Argo CD Was Calling Module Inside a Module
+Current:- Added Automated Pipeline For This Repo.
 
 
 
@@ -15,3 +15,13 @@ kubectl get svc argocd-server -n argocd
 To Get argo cd password
 kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d && echo
+
+
+  Future - Make environment/prod
+  make tfvars for prod
+  make pipeline work for dev/prod
+
+  make a dev branch and a main branch
+  dev branch = dev changes/ dev pipeline runs
+  stage step (Will plan something)
+  main branch p merge = will run pipeline for prod.

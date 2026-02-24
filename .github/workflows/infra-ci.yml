@@ -1,0 +1,67 @@
+name: Infra CI - Multi Environment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        environment: [dev] # Will Add more environments like staging, prod as needed (Planned for Phase 2)
+
+    defaults:
+      run:
+        working-directory: environments/${{ matrix.environment }}
+
+    steps:
+      # 1️⃣ Checkout Code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      # 3️⃣ Terraform Format Check (Whole Repo)
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+        working-directory: .
+
+      # 4️⃣ Terraform Init
+      - name: Terraform Init
+        run: terraform init
+
+      # 5️⃣ Terraform Validate
+      - name: Terraform Validate
+        run: terraform validate
+
+      # 6️⃣ Terraform Plan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      # 7️⃣ Install Infracost
+      - name: Install Infracost
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+
+      # 8️⃣ Run Infracost
+      - name: Run Infracost
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        run: |
+          infracost breakdown --path . --format json --out-file infracost-${{ matrix.environment }}.json
+          infracost breakdown --path .
+
+      # 9️⃣ Upload Infracost Artifact
+      - name: Upload Infracost Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: infracost-${{ matrix.environment }}
+          path: environments/${{ matrix.environment }}/infracost-${{ matrix.environment }}.json

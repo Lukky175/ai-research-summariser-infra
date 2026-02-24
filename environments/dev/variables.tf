@@ -1,20 +1,20 @@
 variable "region" {
-  type = string
+  type        = string
   description = "AWS region to deploy resources in"
 }
 
 variable "project_name" {
-  type = string
+  type        = string
   description = "Name of the project"
 }
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Environment name (e.g., dev, staging, prod)"
 }
 
 variable "owner" {
-  type = string
+  type        = string
   description = "Owner of the project"
 }
 
@@ -25,21 +25,21 @@ variable "instance_type" {
 
 variable "cidr_block" {
   description = "VPC CIDR block"
-  type = string
+  type        = string
 }
 
 variable "instance_tenancy" {
   description = "VPC instance tenancy"
-  type = string
-  default = "default"
+  type        = string
+  default     = "default"
 }
 
 variable "subnet_cidr_block" {
-  description = "Subnet CIDR block"  #"10.0.1.0/24"
-  type = string
+  description = "Subnet CIDR block" #"10.0.1.0/24"
+  type        = string
 }
 
 variable "availability_zone" {
   description = "Availability Zone for the subnet" #"ap-south-1a"
-  type = string
+  type        = string
 }
