@@ -3,8 +3,10 @@ Current:-  Implemented Improvements suggested by tfsec.
 <!-- To see which port:- (30080) -->
 kubectl get svc argocd-server -n argocd  
 
+<!-- To be fmt friendly (Pipeline stage) -->
+terraform fmt -recursive
 
-To Check Logs of userdata Script
+<!-- To Check Logs of userdata Script -->
 sudo cat /var/log/user-data-debug.log
 
 <!-- % To Get argo cd password -->

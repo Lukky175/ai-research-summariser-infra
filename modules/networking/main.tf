@@ -61,9 +61,9 @@ resource "aws_iam_role_policy" "flow_log_policy" {
 }
 
 resource "aws_subnet" "main" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.subnet_cidr_block
-  availability_zone       = var.availability_zone
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.subnet_cidr_block
+  availability_zone = var.availability_zone
   # tfsec:ignore:aws-ec2-no-public-ip-subnet
   # Public subnet required for internet-facing NGINX ingress
   map_public_ip_on_launch = true

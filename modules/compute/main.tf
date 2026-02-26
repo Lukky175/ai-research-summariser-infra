@@ -76,13 +76,13 @@ resource "aws_instance" "app_server" {
   associate_public_ip_address = true
 
   metadata_options {
-    http_tokens = "required" #Prevents SSRF (Server-Side Request Forgery) Attacks by requiring IMDSv2 for metadata access.
+    http_tokens   = "required" #Prevents SSRF (Server-Side Request Forgery) Attacks by requiring IMDSv2 for metadata access.
     http_endpoint = "enabled"
   }
   root_block_device {
     volume_size = 20
     volume_type = "gp3"
-    encrypted = true
+    encrypted   = true
   }
   user_data = <<-EOF
             #!/bin/bash
