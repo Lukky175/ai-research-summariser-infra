@@ -19,21 +19,22 @@ jobs:
         working-directory: environments/${{ matrix.environment }}
 
     steps:
-      # 1️⃣ Checkout Code
+      # Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Terraform
+      # Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.6
 
-      # 3️⃣ Terraform Format Check (Whole Repo)
+      # Terraform Format Check (Whole Repo)
       - name: Terraform Format
         run: terraform fmt -check -recursive
         working-directory: .
 
+      # Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -41,34 +42,55 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 4️⃣ Terraform Init
+      # Terraform Init
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
-      # 5️⃣ Terraform Validate
+      # Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # 6️⃣ Terraform Plan
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+      # Terraform Security Scan
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
 
-      # 7️⃣ Install Infracost
+      # Terraform Plan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan -input=false
+
+      # Install Infracost
       - name: Install Infracost
         run: |
           curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
 
-      # 8️⃣ Run Infracost
+      # Run Infracost
       - name: Run Infracost
         env:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
         run: |
           infracost breakdown --path . --format json --out-file infracost-${{ matrix.environment }}.json
-          infracost breakdown --path .
+          infracost breakdown --path . --format table --out-file infracost-${{ matrix.environment }}.txt
 
-      # 9️⃣ Upload Infracost Artifact
+
+      # Upload Infracost Artifact
       - name: Upload Infracost Artifact
         uses: actions/upload-artifact@v4
         with:
           name: infracost-${{ matrix.environment }}
-          path: environments/${{ matrix.environment }}/infracost-${{ matrix.environment }}.json
+          path: |
+            environments/${{ matrix.environment }}/infracost-${{ matrix.environment }}.json
+            environments/${{ matrix.environment }}/infracost-${{ matrix.environment }}.txt
+
+      #Install jq & bc for cost comparison
+      - name: Install jq and bc
+        run: sudo apt-get update && sudo apt-get install -y jq bc
+
+      #FailPipeline if cost exceeds threshold (Example Threshold: $1000)
+      - name: Fail if cost exceeds threshold
+        run: |
+          MONTHLY_COST=$(jq '.totalMonthlyCost | tonumber' infracost-${{ matrix.environment }}.json)
+          echo "Monthly Cost: $MONTHLY_COST"
+          if (( $(echo "$MONTHLY_COST > 1000" | bc -l) )); then
+            echo "Cost exceeds threshold!"
+            exit 1
+          fi
