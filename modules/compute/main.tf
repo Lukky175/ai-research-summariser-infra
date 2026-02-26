@@ -13,6 +13,8 @@ resource "aws_security_group" "ec2_sg" {
   description = "Security group for EC2"
   vpc_id      = var.vpc_id
 
+  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
+  # Public HTTPS access required for web application
   ingress {
     description = "HTTP"
     from_port   = 80
@@ -29,20 +31,15 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # tfsec:ignore:aws-ec2-no-public-egress-sgr
+  # Required for package installs, image pulls, ACME validation, and general internet access from the EC2 instance
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  #   ingress {
-  #   description = "K3s API"
-  #   from_port   = 6443
-  #   to_port     = 6443
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["YOUR_IP/32"]
-  # } # For Future: I Will Replace YOUR_IP with my actual IP address to allow access to K3s API from my machine
 
 }
 resource "aws_iam_role" "ec2_ssm_role" {
@@ -78,9 +75,14 @@ resource "aws_instance" "app_server" {
 
   associate_public_ip_address = true
 
+  metadata_options {
+    http_tokens = "required" #Prevents SSRF (Server-Side Request Forgery) Attacks by requiring IMDSv2 for metadata access.
+    http_endpoint = "enabled"
+  }
   root_block_device {
     volume_size = 20
     volume_type = "gp3"
+    encrypted = true
   }
   user_data = <<-EOF
             #!/bin/bash
@@ -113,7 +115,18 @@ resource "aws_instance" "app_server" {
             # Wait for Kubernetes node to become Ready
             ############################################
             echo "Waiting for Kubernetes node to become Ready..."
-            kubectl wait --for=condition=Ready node --all --timeout=120s
+            echo "Waiting for Kubernetes API to be ready..."
+            # Wait until kubectl can talk to API
+            until kubectl get nodes >/dev/null 2>&1; do
+              echo "Waiting for API..."
+              sleep 5
+            done
+
+            echo "Waiting for node to become Ready..."
+            until kubectl get nodes | grep -q " Ready "; do
+              kubectl get nodes
+              sleep 5
+            done
 
             ############################################
             # Install Helm
