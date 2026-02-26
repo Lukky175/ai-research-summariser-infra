@@ -1,8 +1,10 @@
 Current:-  
-1. Added jq & bc for cost comparison
-2. Fail Pipeline If Cost > Threshold
-3. Added Table format support for Infracost Artifact
-
+1. Disabled public SSH rule from Security groupa since we use AWS SSM Session Manager.
+2. Removed ArgoCD Port (WillUse NGINX Ingress.)
+3. Major Updates in User Data Script.
+4. Since Using k3s Traefik is enabled as default ingress controller so  Disabled Traefik (Will use NGINX Ingress controller)
+5. Added Cert Manager
+6. Installed Monitoring stack (Prometheus+Grafana)
 
 <!-- To see which port:- (30080) -->
 kubectl get svc argocd-server -n argocd  
