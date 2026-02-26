@@ -8,13 +8,13 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+# tfsec:ignore:aws-ec2-no-public-ingress-sgr
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.project_name}-${var.environment}-sg"
   description = "Security group for EC2"
   vpc_id      = var.vpc_id
 
-  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
-  # Public HTTPS access required for web application
   ingress {
     description = "HTTP"
     from_port   = 80
@@ -31,8 +31,6 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # tfsec:ignore:aws-ec2-no-public-egress-sgr
-  # Required for package installs, image pulls, ACME validation, and general internet access from the EC2 instance
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0

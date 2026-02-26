@@ -30,17 +30,3 @@ variable "availability_zone" {
   description = "Availability Zone for the subnet" #"ap-south-1a"
   type        = string
 }
-
-#Control flow logs variable
-variable "enable_flow_logs" {
-  description = "Enable VPC flow logs"
-  type        = bool
-  default     = true
-}
-
-variable "flow_log_retention_days" {
-  description = "Retention days for VPC flow logs"
-  type        = number
-  default     = 7
-}
-
