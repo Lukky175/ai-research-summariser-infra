@@ -1,4 +1,6 @@
-Current:- Configure ArgoCD to run without internal TLS.
+Current:- 
+1. Added & Attached Roles To Ec2 to read secrets externally.
+2. Removed user_data from main.tf & Added a .sh script Instead.
 
 <!-- To see which port:- (30080) -->
 kubectl get svc argocd-server -n argocd  
@@ -13,9 +15,16 @@ sudo cat /var/log/user-data-debug.log
 kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d && echo
 
-<!-- To Check Grafana Password -->
-kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+<!-- To Check Grafana Username & Password -->
+kubectl get secret monitoring-grafana -n monitoring \
+-o jsonpath="{.data.admin-user}" | base64 -d ; echo
 
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+
+<!-- sync argocd -->
+kubectl patch application research-app -n argocd \
+  --type merge \
+  -p '{"operation":{"sync":{}}}'
 
 <!-- Future -  -->
 1. Make environment/prod
