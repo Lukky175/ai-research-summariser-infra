@@ -1,4 +1,4 @@
-Current:-  Updated Ec2 Script.
+Current:- Configure ArgoCD to run without internal TLS.
 
 <!-- To see which port:- (30080) -->
 kubectl get svc argocd-server -n argocd  

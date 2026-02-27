@@ -224,6 +224,17 @@ resource "aws_instance" "app_server" {
             kubectl wait --for=condition=Ready pod --all -n argocd --timeout=300s
 
             ############################################
+            # Configure ArgoCD to run without internal TLS
+            ############################################
+            echo "Configuring ArgoCD insecure mode..."
+
+            kubectl patch configmap argocd-cmd-params-cm -n argocd \
+              --type merge \
+              -p '{"data":{"server.insecure":"true"}}'
+
+            kubectl rollout restart deployment argocd-server -n argocd
+
+            ############################################
             # Create Application Namespace
             ############################################
             kubectl create namespace dev-research-app || true
