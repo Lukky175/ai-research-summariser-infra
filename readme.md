@@ -1,4 +1,4 @@
-Current:-  Implemented Improvements suggested by tfsec.
+Current:-  Updated Ec2 Script.
 
 <!-- To see which port:- (30080) -->
 kubectl get svc argocd-server -n argocd  

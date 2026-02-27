@@ -126,6 +126,23 @@ resource "aws_instance" "app_server" {
               sleep 5
             done
 
+            echo "Cluster is Ready. Waiting extra 15 seconds for full stabilization..."
+            sleep 15
+
+            ############################################
+            # Configure kubeconfig properly
+            ############################################
+            echo "Configuring kubeconfig..."
+
+            mkdir -p /root/.kube
+            cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
+            chmod 600 /root/.kube/config
+
+            export KUBECONFIG=/root/.kube/config
+            echo "KUBECONFIG set to $KUBECONFIG"
+
+            kubectl get nodes
+            sleep 5
             ############################################
             # Install Helm
             ############################################
@@ -145,8 +162,7 @@ resource "aws_instance" "app_server" {
             kubectl create namespace ingress-nginx || true
 
             helm install ingress-nginx ingress-nginx/ingress-nginx \
-              --namespace ingress-nginx \
-              --set controller.hostPort.enabled=true
+              --namespace ingress-nginx
 
             echo "Waiting for NGINX Ingress to be ready..."
             kubectl wait --for=condition=Ready pod --all -n ingress-nginx --timeout=300s
@@ -155,8 +171,6 @@ resource "aws_instance" "app_server" {
             # Install cert-manager
             ############################################
             echo "Installing cert-manager..."
-
-            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.crds.yaml
 
             helm repo add jetstack https://charts.jetstack.io
             helm repo update
@@ -200,6 +214,7 @@ resource "aws_instance" "app_server" {
             kubectl create namespace argocd || true
 
             kubectl apply -n argocd \
+              --server-side \
               -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
             ############################################
