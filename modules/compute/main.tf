@@ -107,6 +107,7 @@ resource "aws_instance" "app_server" {
     encrypted   = true
   }
   user_data = file("${path.module}/user_data.sh")
+  user_data_replace_on_change = true
   
   tags = {
     Name = "${var.project_name}-${var.environment}-ec2"

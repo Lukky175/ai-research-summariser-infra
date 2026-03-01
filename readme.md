@@ -1,6 +1,5 @@
 Current:- 
-1. Added & Attached Roles To Ec2 to read secrets externally.
-2. Removed user_data from main.tf & Added a .sh script Instead.
+1. Optimized User_data.sh
 
 <!-- To see which port:- (30080) -->
 kubectl get svc argocd-server -n argocd  
