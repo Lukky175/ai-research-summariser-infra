@@ -137,8 +137,11 @@ kubectl create namespace monitoring || true
 
 # Install kube-prometheus-stack (Prometheus + Grafana) using Helm
 echo "Installing kube-prometheus-stack (Prometheus + Grafana) using Helm..."
-helm upgrade --install monitoring prometheus-community/kube-prometheus-stack --namespace monitoring
-
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --timeout 15m \
+  --wait
+  
 echo "Waiting for Prometheus and Grafana pods to be ready..."
 kubectl wait --for=condition=Ready pod --all -n monitoring --timeout=600s
 kubectl get pods -n monitoring
